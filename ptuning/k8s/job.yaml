@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    k8s-app: finetune-chatglm
+    qcloud-app: finetune-chatglm
+  name: finetune-chatglm
+  namespace: default
+spec:
+  completions: 1
+  parallelism: 1
+  template:
+    metadata:
+      annotations:
+        eks.tke.cloud.tencent.com/gpu-type: 'V100'
+        eks.tke.cloud.tencent.com/root-cbs-size: '50'
+      labels:
+        k8s-app: finetune-chatglm
+        qcloud-app: finetune-chatglm
+    spec:
+      containers:
+      - image: ccr.ccs.tencentyun.com/halewang/hale-test:chatglm-ptuningv2-q8
+        env:
+        - name: WANDB_DISABLED
+          value: 'true'
+        imagePullPolicy: Always
+        name: finetune
+        resources:
+          limits:
+            nvidia.com/gpu: "1"
+          requests:
+            nvidia.com/gpu: "1"
+        securityContext:
+          privileged: false
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /data
+          name: models
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: qcloudregistrykey
+      restartPolicy: Never
+      schedulerName: default-scheduler
+      securityContext: {}
+      volumes:
+      - name: models
+        persistentVolumeClaim:
+          claimName: models

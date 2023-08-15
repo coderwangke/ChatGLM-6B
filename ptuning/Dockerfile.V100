@@ -1,0 +1,18 @@
+FROM nvidia/cuda:11.4.3-base-ubuntu20.04
+
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN apt update && apt install -y git python3 python3-pip nvidia-cuda-toolkit
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+WORKDIR /app
+
+RUN git clone https://github.com/THUDM/ChatGLM-6B
+
+WORKDIR /app/ChatGLM-6B
+
+RUN pip install -r requirements.txt
+RUN pip install rouge_chinese nltk jieba datasets
+
+WORKDIR /app/ChatGLM-6B/ptuning

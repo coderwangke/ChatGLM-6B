@@ -20,7 +20,7 @@ echo "base_path: $base_path"
 echo "quantization_bit: $quantization_bit"
 echo "max_steps: $max_steps"
 
-CUDA_VISIBLE_DEVICES=0 python3 web_demo.py \
+CUDA_VISIBLE_DEVICES=0 python3 api.py \
     --model_name_or_path "$base_path"/models/chatglm-6b \
     --ptuning_checkpoint "$base_path"/output/adgen-chatglm-6b-pt-"$pre_seq_len"-"$lr"-"$quantization_bit"/checkpoint-"$max_steps" \
     --pre_seq_len "$pre_seq_len" \

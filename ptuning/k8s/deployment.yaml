@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: chatglm-infer
+    qcloud-app: chatglm-infer
+  name: chatglm-infer
+  namespace: default
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      k8s-app: chatglm-infer
+      qcloud-app: chatglm-infer
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        eks.tke.cloud.tencent.com/gpu-type: 'V100'
+        eks.tke.cloud.tencent.com/root-cbs-size: '50'
+      labels:
+        k8s-app: chatglm-infer
+        qcloud-app: chatglm-infer
+    spec:
+      containers:
+      - image: ccr.ccs.tencentyun.com/halewang/hale-test:chatglm-ptuningv2-infer-api
+        imagePullPolicy: Always
+        name: infer
+        resources:
+          limits:
+            nvidia.com/gpu: "1"
+          requests:
+            nvidia.com/gpu: "1"
+        securityContext:
+          privileged: false
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /data
+          name: models
+        - mountPath: /dev/shm
+          name: cache-volume
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: qcloudregistrykey
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      volumes:
+      - name: cache-volume
+        emptyDir:
+          medium: Memory
+          sizeLimit: 1Gi
+      - name: models
+        persistentVolumeClaim:
+          claimName: models

@@ -1,7 +1,7 @@
 FROM nvidia/cuda:11.4.3-base-ubuntu20.04
 
 ENV TZ=Asia/Shanghai \
-    PRE_SEQ_LEN=128 \
+    PRE_SEQ_LEN=64 \
     LR=1e-4 \
     BASE_PATH=/data \
     QUANTIZATION_BIT=8 \
